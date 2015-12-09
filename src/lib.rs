@@ -19,12 +19,9 @@ pub struct GBTreeMap<K, V> {
 }
 
 fn floor_log2(mut i: usize) -> usize {
-    i>>=1;
+    i >>= 1;
     let mut returnme = 0;
-    while i != 0 {
-        i>>=1;
-        returnme +=1;
-    }
+    while i != 0 { i >>= 1; returnme += 1; }
     returnme
 }
 
@@ -265,56 +262,7 @@ impl <K: Ord + Copy + PartialEq + PartialOrd, V> GBTreeMap<K, V> {
             let mut last: *mut Option<Box<Node<K, V>>> = t;
             loop  {
                 match *t {
-                    None =>
-                    match *candidate {
-                        Some(ref mut cnode) =>
-                        match *last {
-                            Some(ref mut lnode) => {
-                                if *key == cnode.key {
-                                    let mut result_node = None;
-                                    if last == candidate {
-                                        let left_child:
-                                                *mut Option<Box<Node<K, V>>> =
-                                            &mut cnode.children.0;
-                                        swap2(last, &mut result_node, last,
-                                              left_child);
-                                        /*
-                                        ptr::swap(last,&mut result_node);
-                                        ptr::swap(last,left_child);
-                                        */
-                                        if self.deletions >
-                                               MAXDEL * self.weight {
-                                            match self.root {
-                                                Some(ref mut rnode) =>
-                                                rnode.rebuild(),
-                                                _ => (),
-                                            }
-                                            self.deletions = 0;
-                                        }
-
-                                        return Some(result_node.unwrap().value);
-                                    }
-                                    /* candidate != last */
-                                    let right_child:
-                                            *mut Option<Box<Node<K, V>>> =
-                                        &mut lnode.children.1;
-                                    mem::swap(&mut lnode.key, &mut cnode.key);
-                                    mem::swap(&mut lnode.value,
-                                              &mut cnode.value);
-                                    swap2(last, &mut result_node, last,
-                                          right_child);
-                                    /*
-                                    ptr::swap(last,&mut result_node);
-                                    ptr::swap(last,right_child);
-                                    */
-                                    return Some(result_node.unwrap().value);
-                                }
-                                return None
-                            }
-                            _ => panic!(),
-                        },
-                        _ => return None,
-                    },
+                    None => break ,
                     Some(ref mut node) => {
                         last = t;
 
@@ -329,6 +277,50 @@ impl <K: Ord + Copy + PartialEq + PartialOrd, V> GBTreeMap<K, V> {
                         }
                     }
                 }
+            }
+            match *candidate {
+                Some(ref mut cnode) =>
+                match *last {
+                    Some(ref mut lnode) => {
+                        if *key == cnode.key {
+                            let mut result_node = None;
+                            if last == candidate {
+                                let left_child: *mut Option<Box<Node<K, V>>> =
+                                    &mut cnode.children.0;
+                                swap2(last, &mut result_node, last,
+                                      left_child);
+                                /*
+                                   ptr::swap(last,&mut result_node);
+                                   ptr::swap(last,left_child);
+                                   */
+                                if self.deletions > MAXDEL * self.weight {
+                                    match self.root {
+                                        Some(ref mut rnode) =>
+                                        rnode.rebuild(),
+                                        _ => (),
+                                    }
+                                    self.deletions = 0;
+                                }
+
+                                return Some(result_node.unwrap().value);
+                            }
+                            /* candidate != last */
+                            let right_child: *mut Option<Box<Node<K, V>>> =
+                                &mut lnode.children.1;
+                            mem::swap(&mut lnode.key, &mut cnode.key);
+                            mem::swap(&mut lnode.value, &mut cnode.value);
+                            swap2(last, &mut result_node, last, right_child);
+                            /*
+                               ptr::swap(last,&mut result_node);
+                               ptr::swap(last,right_child);
+                               */
+                            return Some(result_node.unwrap().value);
+                        }
+                        return None
+                    }
+                    _ => panic!(),
+                },
+                _ => return None,
             }
         }
     }
