@@ -1,0 +1,6 @@
+[package]
+name = "gbtree"
+version = "0.1.0"
+authors = ["Jason Miller <aidenn0@geocities.com>"]
+
+build = "build.rs"
