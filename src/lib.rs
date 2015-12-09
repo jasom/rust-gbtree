@@ -18,9 +18,7 @@ pub struct GBTreeMap<K, V> {
     deletions: usize,
 }
 
-fn floor_log2(i: usize) -> usize {
-    (63 - i.leading_zeros()) as usize
-    /*
+fn floor_log2(mut i: usize) -> usize {
     i>>=1;
     let mut returnme = 0;
     while i != 0 {
@@ -28,7 +26,6 @@ fn floor_log2(i: usize) -> usize {
         returnme +=1;
     }
     returnme
-    */
 }
 
 unsafe fn swap2<T>(x: *mut T, y: *mut T, x2: *mut T, y2: *mut T) {
